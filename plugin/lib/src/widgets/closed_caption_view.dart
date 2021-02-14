@@ -24,22 +24,22 @@ class ClosedCaptionView extends StatelessWidget {
               if (snapshot.hasError) {
                 return Container();
               }
-
-              final strSubtitle = _.videoPlayerController.value.caption.text;
-              if (strSubtitle == null) return Container();
-
-              return Positioned(
-                left: 60,
-                right: 60,
-                bottom: 0,
-                child: ClosedCaption(
-                  text: strSubtitle,
-                  textStyle: TextStyle(
-                    color: Colors.white,
-                    fontSize: responsive.ip(2),
-                  ),
-                ),
-              );
+              return Container();
+              // final strSubtitle = _.videoPlayerController.value.caption.text;
+              // if (strSubtitle == null) return Container();
+              //
+              // return Positioned(
+              //   left: 60,
+              //   right: 60,
+              //   bottom: 0,
+              //   child: ClosedCaption(
+              //     text: strSubtitle,
+              //     textStyle: TextStyle(
+              //       color: Colors.white,
+              //       fontSize: responsive.ip(2),
+              //     ),
+              //   ),
+              // );
             },
           );
         });

@@ -6,4 +6,4 @@ export 'src/helpers/meedu_player_status.dart';
 export 'src/helpers/screen_manager.dart';
 export 'src/helpers/custom_icons.dart';
 export 'src/helpers/enabled_buttons.dart';
-export 'package:video_player/video_player.dart';
+export 'package:flutter_vlc_player/flutter_vlc_player.dart';

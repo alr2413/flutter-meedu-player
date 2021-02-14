@@ -11,14 +11,14 @@ import 'package:meedu_player/src/helpers/player_data_status.dart';
 import 'package:meedu_player/src/helpers/screen_manager.dart';
 import 'package:meedu_player/src/native/pip_manager.dart';
 import 'package:meedu_player/src/widgets/fullscreen_page.dart';
-import 'package:video_player/video_player.dart';
+import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'package:meedu/rx.dart';
 
 enum ControlsStyle { primary, secondary }
 
 class MeeduPlayerController {
   /// the video_player controller
-  VideoPlayerController _videoPlayerController;
+  VlcPlayerController _videoPlayerController;
   final _pipManager = PipManager();
 
   /// Screen Manager to define the overlays and device orientation when the player enters in fullscreen mode
@@ -52,7 +52,7 @@ class MeeduPlayerController {
   Rx<Duration> _position = Rx(Duration.zero);
   Rx<Duration> _sliderPosition = Rx(Duration.zero);
   Rx<Duration> _duration = Rx(Duration.zero);
-  Rx<List<DurationRange>> _buffered = Rx([]);
+  // Rx<List<DurationRange>> _buffered = Rx([]);
   Rx<bool> _closedCaptionEnabled = false.obs;
 
   Rx<bool> _mute = false.obs;
@@ -65,7 +65,7 @@ class MeeduPlayerController {
   bool _isSliderMoving = false;
   bool _looping = false;
   bool _autoplay = false;
-  double _volumeBeforeMute = 0;
+  int _volumeBeforeMute = 0;
   double _playbackSpeed = 1.0;
   Timer _timer;
   RxWorker _pipModeWorker;
@@ -107,11 +107,11 @@ class MeeduPlayerController {
   Stream<Duration> get onSliderPositionChanged => _sliderPosition.stream;
 
   /// [bufferedLoaded] buffered Loaded for network resources
-  Rx<List<DurationRange>> get buffered => _buffered;
-  Stream<List<DurationRange>> get onBufferedChanged => _buffered.stream;
+  // Rx<List<DurationRange>> get buffered => _buffered;
+  // Stream<List<DurationRange>> get onBufferedChanged => _buffered.stream;
 
   /// [videoPlayerController] instace of VideoPlayerController
-  VideoPlayerController get videoPlayerController => _videoPlayerController;
+  VlcPlayerController get videoPlayerController => _videoPlayerController;
 
   /// the playback speed default value is 1.0
   double get playbackSpeed => _playbackSpeed;
@@ -184,33 +184,43 @@ class MeeduPlayerController {
   }
 
   /// create a new video_player controller
-  VideoPlayerController _createVideoController(DataSource dataSource) {
-    VideoPlayerController tmp; // create a new video controller
+  VlcPlayerController _createVideoController(DataSource dataSource) {
+    VlcPlayerController tmp; // create a new video controller
     if (dataSource.type == DataSourceType.asset) {
-      tmp = new VideoPlayerController.asset(
+      tmp = new VlcPlayerController.asset(
         dataSource.source,
-        closedCaptionFile: dataSource.closedCaptionFile,
+        // closedCaptionFile: dataSource.closedCaptionFile,
         package: dataSource.package,
       );
     } else if (dataSource.type == DataSourceType.network) {
-      tmp = new VideoPlayerController.network(
+      tmp = new VlcPlayerController.network(
         dataSource.source,
-        formatHint: dataSource.formatHint,
-        closedCaptionFile: dataSource.closedCaptionFile,
+        autoInitialize: false,
+        // formatHint: dataSource.formatHint,
+        // closedCaptionFile: dataSource.closedCaptionFile,
       );
     } else {
-      tmp = new VideoPlayerController.file(
+      tmp = new VlcPlayerController.file(
         dataSource.file,
-        closedCaptionFile: dataSource.closedCaptionFile,
+        // closedCaptionFile: dataSource.closedCaptionFile,
       );
     }
     return tmp;
+  }
+
+  Future<void> _waitUntilViewGetsReady() async {
+    while (_videoPlayerController.isReadyToInitialize == null ||
+        _videoPlayerController.isReadyToInitialize == false) {
+      await Future.delayed(Duration(milliseconds: 5));
+    }
+    await Future.delayed(Duration(milliseconds: 5));
   }
 
   /// initialize the video_player controller and load the data source
   Future _initializePlayer({
     Duration seekTo,
   }) async {
+    await _waitUntilViewGetsReady();
     await _videoPlayerController.initialize();
 
     if (seekTo != null) {
@@ -242,13 +252,13 @@ class MeeduPlayerController {
     }
 
     // set the video buffered loaded
-    final buffered = value.buffered;
-
-    if (buffered.isNotEmpty) {
-      _buffered.value = buffered;
-      isBuffering.value =
-          value.isPlaying && position.inSeconds >= buffered.last.end.inSeconds;
-    }
+    // final buffered = value.buffered;
+    //
+    // if (buffered.isNotEmpty) {
+    //   _buffered.value = buffered;
+    //   isBuffering.value =
+    //       value.isPlaying && position.inSeconds >= buffered.last.end.inSeconds;
+    // }
 
     // save the volume value
     final volume = value.volume;
@@ -284,7 +294,7 @@ class MeeduPlayerController {
       }
 
       // save the current video controller to be disposed in the next frame
-      VideoPlayerController oldController = _videoPlayerController;
+      VlcPlayerController oldController = _videoPlayerController;
 
       // create a new video_player controller using the dataSource
       _videoPlayerController = _createVideoController(dataSource);
@@ -376,8 +386,8 @@ class MeeduPlayerController {
   /// Sets the audio volume
   /// [volume] indicates a value between 0.0 (silent) and 1.0 (full volume) on a
   /// linear scale.
-  Future<void> setVolume(double volume) async {
-    assert(volume >= 0.0 && volume <= 1.0); // validate the param
+  Future<void> setVolume(int volume) async {
+    assert(volume >= 0 && volume <= 100); // validate the param
     _volumeBeforeMute = _videoPlayerController.value.volume;
     await _videoPlayerController?.setVolume(volume);
   }
@@ -494,7 +504,7 @@ class MeeduPlayerController {
       _position.close();
       _sliderPosition.close();
       _duration.close();
-      _buffered.close();
+      // _buffered.close();
       _closedCaptionEnabled.close();
       _mute.close();
       _fullscreen.close();

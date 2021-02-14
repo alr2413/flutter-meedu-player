@@ -15,14 +15,14 @@ class PlayerSlider extends StatelessWidget {
         Container(
           child: LayoutBuilder(builder: (ctx, constraints) {
             return RxBuilder(
-              observables: [_.buffered, _.duration],
+              observables: [/*_.buffered,*/ _.duration],
               builder: (__) {
                 // convert the bufferedLoaded to a percent using the video duration as a 100%
                 double percent = 0;
-                if (_.buffered.value.isNotEmpty) {
-                  final loaded = _.buffered.value.last.end;
-                  percent = loaded.inSeconds / _.duration.value.inSeconds;
-                }
+                // if (_.buffered.value.isNotEmpty) {
+                //   final loaded = _.buffered.value.last.end;
+                //   percent = loaded.inSeconds / _.duration.value.inSeconds;
+                // }
                 // draw the  bufferedLoaded as a container
                 return AnimatedContainer(
                   duration: Duration(milliseconds: 300),

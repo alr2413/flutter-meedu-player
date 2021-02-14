@@ -6,7 +6,7 @@ import 'package:meedu_player/src/helpers/responsive.dart';
 import 'package:meedu_player/src/widgets/closed_caption_view.dart';
 import 'package:meedu_player/src/widgets/styles/primary/primary_player_controls.dart';
 import 'package:meedu_player/src/widgets/styles/secondary/secondary_player_controls.dart';
-import 'package:video_player/video_player.dart';
+import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 
 class MeeduVideoPlayer extends StatefulWidget {
   final MeeduPlayerController controller;
@@ -42,12 +42,12 @@ class MeeduVideoPlayer extends StatefulWidget {
 
 class _MeeduVideoPlayerState extends State<MeeduVideoPlayer> {
   Widget _getView(MeeduPlayerController _) {
-    if (_.dataStatus.none) return Container();
-    if (_.dataStatus.loading) {
-      return Center(
-        child: _.loadingWidget,
-      );
-    }
+    // if (_.dataStatus.none) return Container();
+    // if (_.dataStatus.loading) {
+    //   return Center(
+    //     child: _.loadingWidget,
+    //   );
+    // }
     if (_.dataStatus.error) {
       return Center(
         child: Text(
@@ -82,14 +82,21 @@ class _MeeduVideoPlayerState extends State<MeeduVideoPlayer> {
                 observables: [_.videoFit],
                 builder: (__) {
                   return SizedBox.expand(
-                    child: FittedBox(
-                      fit: widget.controller.videoFit.value,
-                      child: SizedBox(
-                        width: _.videoPlayerController.value.size.width ?? 0,
-                        height: _.videoPlayerController.value.size.height ?? 0,
-                        child: VideoPlayer(_.videoPlayerController),
-                      ),
+                    child: VlcPlayer(
+                      controller: _.videoPlayerController,
+                      aspectRatio: 16 / 9,
                     ),
+                    // child: FittedBox(
+                    //   fit: widget.controller.videoFit.value,
+                    //   child: SizedBox(
+                    //     width: _.videoPlayerController.value.size.width ?? 0,
+                    //     height: _.videoPlayerController.value.size.height ?? 0,
+                    //     child: VlcPlayer(
+                    //       controller: _.videoPlayerController,
+                    //       aspectRatio: 16 / 9,
+                    //     ),
+                    //   ),
+                    // ),
                   );
                 }),
             ClosedCaptionView(responsive: responsive),

@@ -15,7 +15,7 @@ class PlayPauseButton extends StatelessWidget {
     return RxBuilder(
       observables: [
         _.playerStatus.status,
-        _.buffered,
+        // _.buffered,
         _.isBuffering,
         _.position
       ],
